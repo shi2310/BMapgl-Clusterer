@@ -229,7 +229,7 @@ class Cluster {
       const radiu = this._markerClusterer.getGridSize(); // 像素半径
       this._lines.length = 0;
       _.each(this._markers, (marker, i) => {
-        const currentRadian = radian * i;
+        const currentRadian = (radian * i * Math.PI) / 180;
         // 转为像素
         const xy = this._map.pointToPixel(this._center);
         const newXY = {

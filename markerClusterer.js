@@ -31,25 +31,6 @@ const cutBoundsInRange = function (bounds) {
   const minY = _.clamp(bounds.getSouthWest().lat, -74, 74);
   return new BMapGL.Bounds(new BMapGL.Point(minX, minY), new BMapGL.Point(maxX, maxY));
 };
-const isArray = function (source) {
-  return '[object Array]' === Object.prototype.toString.call(source);
-};
-const indexOf = function (item, source) {
-  let index = -1;
-  if (isArray(source)) {
-    if (source.indexOf) {
-      index = source.indexOf(item);
-    } else {
-      for (let i = 0, m; (m = source[i]); i++) {
-        if (m === item) {
-          index = i;
-          break;
-        }
-      }
-    }
-  }
-  return index;
-};
 
 /**
  * 聚合集
@@ -84,8 +65,7 @@ class MarkerClusterer {
    */
   addMarkers = (markers) => {
     _.each(markers, (marker) => {
-      const index = indexOf(marker, this._orginMarkers);
-      if (index === -1) {
+      if (!_.some(this._orginMarkers, { key: marker.key })) {
         this._orginMarkers.push(marker);
       }
     });
@@ -154,6 +134,7 @@ class MarkerClusterer {
     this._orginMarkers.length = 0;
     this._clusters.length = 0;
     this._map.removeEventListener('zoomend', this._redraw);
+    this._map.removeEventListener('moveend', this._redraw);
     this._map = null;
   };
 
@@ -334,7 +315,7 @@ class MyMarker {
   constructor(point, key, title) {
     this.originPosition = new BMapGL.Point(point.lng, point.lat);
     this._title = title;
-    this._key = key;
+    this._key = key || _.uniqueId('marker_');
   }
 
   /**
